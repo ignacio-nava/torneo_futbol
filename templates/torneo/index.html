@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -52,65 +53,6 @@
                         <h3 class="fs-075 fc-normal fw-800 upper">{{ data.selected.tournament.name }}</h3>
                     </div>
                     <div class="data-row__game" data-status="active" section data-type="games">
-                        <!-- {% for game in data.selected.games %}
-                        <div class="game">
-                            <div class="game__status">
-                                {% if game.is_finished %}
-                                <p class="fs-050 fc-normal fw-800">Final</p>
-                                {% else %}
-                                <p class="fs-050 fc-normal fw-800">Programado</p>
-                                {% endif %}
-                                <p class="fs-050 fc-normal fw-300">{{ game.datetime|date:"d/m/Y H:i" }}</p>
-                            </div>
-                            <div class="game__info">
-                                {% with team0=game.teams.0 team1=game.teams.1 result=game.result %}
-                                <div class="game__info-result">
-                                    <div class="result-item">
-                                        <span class="fs-075 fc-normal fw-300">{{ team0.name }}</span>
-                                        <span class="fs-075 fc-normal fw-800">
-                                            {% if team0.role == result %}
-                                                V
-                                            {% elif team1.role == result %}
-                                                P
-                                            {% else %}
-                                                E
-                                            {% endif %}
-                                        </span>
-                                    </div>
-                                    <div class="separator fs-075 fc-normal fw-400">-</div>
-                                    <div class="result-item">
-                                        <span class="fs-075 fc-normal fw-800">
-                                            {% if team1.role == result %}
-                                                V
-                                            {% elif team0.role == result %}
-                                                P
-                                            {% else %}
-                                                E
-                                            {% endif %}
-                                        </span>
-                                        <span class="fs-075 fc-normal fw-300">{{ team1.name }}</span>
-                                    </div>
-                                    <div class="expand-button">
-                                        <i class="fa-solid fa-chevron-down"></i>
-                                    </div>
-                                </div>
-                                
-                                <div class="game__info-players">
-                                    <ul>
-                                        {% for player in team0.players %}
-                                        <li class="fs-050 fc-normal fw-300">({{ forloop.counter }}) {{ player }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                    <ul>
-                                        {% for player in team1.players %}
-                                        <li class="fs-050 fc-normal fw-300">({{ forloop.counter }}) {{ player }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                                {% endwith %}
-                            </div>
-                        </div>
-                        {% endfor %} -->
                     </div>
                     <div class="data-row__table" data-status="" section data-type="table">
                         <div class="table">
@@ -124,18 +66,6 @@
                                 <div><span>E</span></div>
                                 <div><span>B</span></div>
                             </div>
-                            <!-- {% for p in data.selected.table %}
-                            <div class="table__row row-player fc-normal fs-050 fw-400">
-                                <div><span class="fw-800">{{ forloop.counter }}</span></div>
-                                <div><span>{{ p.player.nickname }}</span></div>
-                                <div><span class="fw-800">{{ p.total_points }}</span></div>
-                                <div><span>{{ p.games_played }}</span></div>
-                                <div><span>{{ p.games_won }}</span></div>
-                                <div><span>{{ p.games_lost }}</span></div>
-                                <div><span>{{ p.games_tied }}</span></div>
-                                <div><span>{{ p.games_with_bonus }}</span></div>
-                            </div>
-                            {% endfor %} -->
                         </div>
                     </div>
                 </div>
