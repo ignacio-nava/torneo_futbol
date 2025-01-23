@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es2016" /* Specify ECMAScript target version. */,
+    "module": "commonjs" /* Specify module code generation. */,
+    "outDir": "./static_dev/js" /* Redirect output structure to the directory. */,
+    "rootDir": "./static_dev/ts" /* Specify the root directory of input files. */,
+    "strict": true /* Enable all strict type-checking options. */,
+    "esModuleInterop": true /* Enables emit interoperability for ES modules. */,
+    "skipLibCheck": true /* Skip type checking of all declaration files. */
+  },
+  "include": ["./static_dev/ts/**/*"]
+}
