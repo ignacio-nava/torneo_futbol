@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <script src="{% static 'js/navControllers.js' %}" defer></script>
+    <script src="{% static 'js/infoControllers.js' %}" defer></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="container">
+                <div class="logo">
+                    <img src="{% static 'img/philipsx_logo.png' %}" alt="PHILIPS X" srcset="">
+                </div>
+                <div class="hamburger">
+                    <div></div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <div class="container displayer">
+            <div class="tournament-navigation">
+                <h2 class="fs-075 fc-lead fw-800 upper">Torneos</h2>
+                <ul class="fc-normal fs-075">
+                {% for tournament in data.tournaments %}
+                    <li class="capitalize fw-400">{{ tournament.name }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+            <div class="data-info">
+                <div class="title-row">
+                    <h2 class="fs-075 fc-lead fw-800 upper" data-status="active">Partidos</h2>
+                    <h2 class="fs-075 fc-lead fw-800 upper">Tabla</h2>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Jugador</th>
+                            <th>Pts</th>
+                            <th>G</th>
+                            <th>P</th>
+                            <th>E</th>
+                            <th>B</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in data.selected.table %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ p.player.nickname }}</td>
+                                <td>{{ p.total_points }}</td>
+                                <td>{{ p.games_won }}</td>
+                                <td>{{ p.games_lost }}</td>
+                                <td>{{ p.games_tied }}</td>
+                                <td>{{ p.games_with_bonus }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
