@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const API_URL = "http://127.0.0.1:8000/api/torneo/";
+const API_URL = "api/torneo/";
 function getTorneoData(id) {
     return __awaiter(this, void 0, void 0, function* () {
         const url = `${API_URL}${id}/`;

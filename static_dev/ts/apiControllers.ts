@@ -1,4 +1,4 @@
-const API_URL: string = "http://127.0.0.1:8000/api/torneo/"
+const API_URL: string = "api/torneo/"
 
 
 async function getTorneoData(id:string | undefined): Promise<any>  {

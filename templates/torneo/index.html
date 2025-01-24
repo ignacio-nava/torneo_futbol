@@ -83,7 +83,6 @@
                 .trim()
                 .replace('<script id="context-data" type="application/json">','')
         );
-        localStorage.setItem("torneoData", JSON.stringify(contextData));
         document.addEventListener("DOMContentLoaded", () => {
             replaceData(contextData.selected)
         })
