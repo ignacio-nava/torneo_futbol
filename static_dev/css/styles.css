@@ -195,7 +195,7 @@ nav > div {
   padding: 16px 2rem 4px 2rem;
   color: var(--color-white);
   cursor: pointer;
-  transition: color 0.4s ease;
+  transition: color 0.3s ease;
 }
 
 .title-row > h2::after {
@@ -205,7 +205,7 @@ nav > div {
   width: 0;
   height: 1px;
   background-color: var(--color-green);
-  transition: width 0.4s ease;
+  transition: width 0.3s ease;
 }
 
 .title-row > h2:first-child::after {
@@ -265,7 +265,7 @@ nav > div {
   flex: 1;
   border-left: 1px solid var(--color-light-green);
   padding: 1rem 0;
-  transition: padding 0.4s ease-in-out;
+  transition: padding 0.3s ease-in-out;
 }
 .game__info[data-status="active"] {
   padding: 0;
@@ -300,7 +300,7 @@ nav > div {
 }
 .expand-button > i {
   display: none;
-  transition: transform 0.4s ease-in-out;
+  transition: transform 0.3s ease-in-out;
 }
 @media (min-width: 50em) {
   .expand-button {
@@ -322,7 +322,7 @@ nav > div {
   display: flex;
   max-height: var(--max-height, 0);
   overflow: hidden;
-  transition: max-height 0.4s ease-in-out;
+  transition: max-height 0.3s ease-in-out;
   background-color: var(--color-bg-green);
   /* border-top: 1px solid var(--color-light-green); */
 }
