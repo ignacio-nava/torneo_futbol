@@ -47,7 +47,7 @@ def get_games(data, tournament):
 
 def get_player_points(data, tournament):
     player_points = PlayerPoints.objects.filter(tournament=tournament).values('player').annotate(
-        total_points=Sum('points', distinct=True),
+        total_points=Sum('points', distinct=False),
         games_played=Count('player', filter=Q(result__in=['W', 'L', 'T'])),
         games_won=Count('result', filter=Q(result='W')),
         games_lost=Count('result', filter=Q(result='L')),
