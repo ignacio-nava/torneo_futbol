@@ -10,7 +10,8 @@ def get_tournament_obj(tournament):
         "id": tournament.id,
         "name": tournament.name,
         "start_date": tournament.start_date,
-        "end_date": tournament.end_date
+        "end_date": tournament.end_date,
+        "finished": tournament.finished
     }
 
 def get_games(data, tournament):

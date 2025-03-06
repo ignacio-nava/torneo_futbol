@@ -5,7 +5,7 @@ import Table from "./games/table/Table";
 
 const DataInfo: React.FC = () => {
     const [activeType, setActiveType] = useState<'games' | 'table'>('games');
-    const { selected } = useAppContext()
+    const { selected, isLoadingData } = useAppContext()
     const { tournament, games } = selected
 
     const handleClick = useCallback((type: 'games' | 'table') => {
@@ -16,7 +16,6 @@ const DataInfo: React.FC = () => {
         <GameRow key={index} game={game}/>
     ))
     
-
     return (
         <div className="data-info">
             <div className="title-row">
@@ -33,9 +32,20 @@ const DataInfo: React.FC = () => {
                     onClick={() => handleClick("table")}
                 >Tabla</h2>
             </div>
-            <div className="data-row">
+            {
+                isLoadingData ? 
+                <div className="loading-container">
+                    <div className="loading-spinner"></div>
+                </div> :
+                <div className="data-row">
                 <div className="data-row__title">
-                    <h3 className="fs-075 fc-normal fw-800 upper">{ tournament.name }</h3>
+                    <h3 className="fs-075 fc-normal fw-800 upper">
+                        { tournament.name } 
+                        {
+                            tournament.finished && 
+                            <span className="fw-300 capitalize fs-050 finished-tag">Finalizado</span>
+                        }
+                    </h3>
                 </div>
                 <div
                     className="data-row__game" 
@@ -50,6 +60,7 @@ const DataInfo: React.FC = () => {
                     <Table />
                 </div>
             </div>
+            }
         </div>
     )
 }

@@ -4,7 +4,8 @@ import { Team } from "../../../types/contextTypes";
 interface PropsMain { 
     teams: Team[];
     status: "active" | "";
- }
+}
+
 interface PropsItem { nickname: string | null; index: number; }
 
 const PlayerRow: React.FC<PropsItem> = ({ nickname, index }) => {
@@ -31,23 +32,21 @@ export const GameInfoPlayers: React.FC<PropsMain> = ({ teams, status }) => {
         if (divRef.current) {
             setMaxHeight(divRef.current.scrollHeight)
         }
-    }, [teams])
 
-    useEffect(() => {
         if (status === "active" && divRef.current) {
             setMaxHeight(divRef.current.scrollHeight)
         }
-    }, [status])
-    
-    const objStyle = {
+    }, [teams, status])
+
+    const objDivStyle = {
         "--max-height": (status === "" ? 0 : maxHeight) + "px" 
     } as React.CSSProperties
 
     return (
         <div 
-        className="game__info-players" 
-        ref={divRef} 
-        style={objStyle}
+            className="game__info-players" 
+            ref={divRef} 
+            style={objDivStyle}
         >
             <ul>{lightTeamElements}</ul>
             <ul>{darkTeamElements}</ul>
