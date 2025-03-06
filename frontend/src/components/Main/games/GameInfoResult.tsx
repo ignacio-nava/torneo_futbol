@@ -20,7 +20,7 @@ export const GameInfoResult: React.FC<Props> = ({ result, teams, handleClick }) 
     const team02: Team = teams[1]
     const team02Result: GameResult = getTeamResult(result, team02)
 
-    const teamsExist = !(lightTeam.players.length === 0 && darkTeam.players.length === 0)
+    const teamsExist = !(team01.players.length === 0 && team02.players.length === 0)
 
     return (
         <div className="game__info-result">
