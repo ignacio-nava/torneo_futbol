@@ -1,5 +1,5 @@
 SECRET_KEY = 'django-insecure-bux)e3fyl@yd5w#54hm8^b-lp+2oixv1828nd&1dua6^^snril'
-DEBUG = False
+DEBUG = True
 IS_SENDING_EMAIL = False
 EMAIL_HOST = ''
 EMAIL_PORT = ''
