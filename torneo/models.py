@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
-
+from django.utils.html import format_html
+from django.utils.dateformat import format
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -8,6 +9,7 @@ class Tournament(models.Model):
     name = models.CharField(_("name") ,max_length=100)
     start_date = models.DateField(_("start date"), blank=True, null=True)
     end_date = models.DateField(_("end date"), blank=True, null=True)
+    finished = models.BooleanField(_("finished"), blank=True, default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -93,6 +95,21 @@ class Game(models.Model):
         self.is_finished = True if self.result else False
         super().save(*args, **kwargs)
         return self
+
+    def game(self):
+        color = "#87ff87" if self.tournament.id % 2 == 0 else "#ffff79"
+        # Formatear la fecha como una cadena
+        date_str = format(self.date, "d-m-Y H:i")  # Formato "YYYY-MM-DD HH:mm"
+        return format_html(
+            '<div style="background-color:{}; color: #000; border-radius:8px; padding:2px 4px; display: flex; align-items: center; gap: 4px;">\
+                <span style="color: #000;">{}</span>\
+                <span style="font-weight:bold; border: 1px dotted; padding: 2px; text-shadow: 1px 1px #a2a2a2;">{}</span>\
+            </div>',
+            color,
+            self.tournament.name,
+            date_str,
+        )
+    game.short_description = _("game")
 
     def __str__(self):
         finished = _("finished").upper()

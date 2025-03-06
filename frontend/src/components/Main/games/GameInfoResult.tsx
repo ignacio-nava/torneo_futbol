@@ -20,6 +20,8 @@ export const GameInfoResult: React.FC<Props> = ({ result, teams, handleClick }) 
     const team02: Team = teams[1]
     const team02Result: GameResult = getTeamResult(result, team02)
 
+    const teamsExist = !(lightTeam.players.length === 0 && darkTeam.players.length === 0)
+
     return (
         <div className="game__info-result">
             <div className="result-item">
@@ -31,9 +33,12 @@ export const GameInfoResult: React.FC<Props> = ({ result, teams, handleClick }) 
                 <span className="fs-075 fc-normal fw-800">{team02Result}</span>
                 <span className="fs-075 fc-normal fw-300">{team02.name}</span>
             </div>
-            <div className="expand-button" onClick={handleClick}>
-                <i className="fa-solid fa-chevron-down"></i>
-            </div>
+            {
+                teamsExist && 
+                <div className="expand-button" onClick={handleClick}>
+                    <i className="fa-solid fa-chevron-down"></i>
+                </div>
+            }
         </div>
     )
 } 

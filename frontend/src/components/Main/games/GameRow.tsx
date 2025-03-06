@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Game } from "../../../types/contextTypes"
 import { GameInfoPlayers } from "./GameInfoPlayers";
 import { GameInfoResult } from "./GameInfoResult";
@@ -27,7 +27,11 @@ export const GameRow: React.FC<GameRowProps> = ({ game }) => {
 
     function handleClickCheron() {
         setGameStatus(prevStatus => prevStatus === "" ? "active" : "")
-    } 
+    }
+
+    useEffect(() => {
+        setGameStatus("");
+    }, [game]);
     
     return (
         <div className="game">

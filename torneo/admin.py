@@ -7,7 +7,7 @@ from .models import Tournament, Player, Team, Game
 class TeamInline(admin.TabularInline):
     model = Team
     extra = 0  # Para "Local" y "Visitor"
-    min_num = 2
+    # min_num = 2
     max_num = 2
     show_change_link = True
     fields = ['role', 'players']  # Campos visibles en el formulario
@@ -48,14 +48,14 @@ class GameAdmin(admin.ModelAdmin):
     inlines = [TeamInline]
 
     list_display = [
-        "tournament",
-        "date",
+        "game",
         "result",
         "bonus"
     ]
 
     list_filter = ["tournament", "date", "result"]
     search_fields = ["tournament__name", "date"]
+    ordering = ["-tournament__id", "-date"]
 
 
 @admin.register(Tournament)
@@ -68,11 +68,3 @@ class TournamentAdmin(admin.ModelAdmin):
 class PlayerAdmin(admin.ModelAdmin):
     list_display = ["nickname", "first_name", "last_name", "created_at", "updated_at"]
     search_fields = ["nickname", "first_name", "last_name"]
-
-
-# @admin.register(Team)
-# class TeamAdmin(admin.ModelAdmin):
-#     list_display = ["game", "role", "created_at", "updated_at"]
-#     list_filter = ["role"]
-#     filter_horizontal = ["players"]
-
