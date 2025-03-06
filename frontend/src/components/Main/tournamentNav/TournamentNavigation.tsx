@@ -5,7 +5,7 @@ import TournamentItem from "./TournamentItem"
 
 
 const TournamentNavigation: React.FC = () => {
-    const { tournaments, selected } = useAppContext()
+    const { tournaments, selected, isLoadingData } = useAppContext()
     const { menuStatus } = useMenuContext()
     
     const tournamentsElements = tournaments.map((tournament, index) => (
@@ -13,7 +13,7 @@ const TournamentNavigation: React.FC = () => {
             key={index}
             id={tournament.id}
             name={tournament.name}
-            isActive={tournament.id === selected.tournament.id}
+            isActive={isLoadingData ? false : tournament.id === selected.tournament.id}
         />
     ))
 

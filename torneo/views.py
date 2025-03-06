@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET
@@ -14,10 +13,7 @@ def torneo_view(request):
     context = {
         "data": data,
     }
-
-    if settings.DEBUG:
-        context["debug"] = settings.DEBUG
-
+    
     return render(request, template_name, context=context)
 
 @require_GET

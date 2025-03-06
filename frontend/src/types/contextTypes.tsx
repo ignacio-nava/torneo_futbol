@@ -3,6 +3,7 @@ export interface Tournament {
   name: string | null;
   start_date: string | null;
   end_date: string | null;
+  finished: boolean;
 }
 
 export interface Player {
