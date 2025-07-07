@@ -49,8 +49,8 @@ class GameAdmin(admin.ModelAdmin):
 
     list_display = [
         "game",
-        "result",
-        "bonus"
+        # "result",
+        # "bonus"
     ]
 
     list_filter = ["tournament", "date", "result"]

@@ -98,15 +98,18 @@ class Game(models.Model):
 
     def game(self):
         color = "#87ff87" if self.tournament.id % 2 == 0 else "#ffff79"
+        status = _("finished") if self.is_finished else "Progamado"
         # Formatear la fecha como una cadena
         date_str = format(self.date, "d-m-Y H:i")  # Formato "YYYY-MM-DD HH:mm"
         return format_html(
             '<div style="background-color:{}; color: #000; border-radius:8px; padding:2px 4px; display: flex; align-items: center; gap: 4px;">\
-                <span style="color: #000;">{}</span>\
-                <span style="font-weight:bold; border: 1px dotted; padding: 2px; text-shadow: 1px 1px #a2a2a2;">{}</span>\
+                <span style="color: #000; border-right: 1px solid; padding-right: 2px;">{}</span>\
+                <span style="font-weight:bold; text-shadow: 1px 1px #a2a2a2;">{} </span>\
+                <span style="font-weight:bold; padding-left: 2px; text-shadow: 1px 1px #a2a2a2; border-left: 1px solid">{}</span>\
             </div>',
             color,
             self.tournament.name,
+            status.upper(),
             date_str,
         )
     game.short_description = _("game")
