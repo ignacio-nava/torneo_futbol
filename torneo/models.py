@@ -32,6 +32,7 @@ class Player(models.Model):
     class Meta:
         verbose_name = _('player')
         verbose_name_plural = _('players')
+        ordering = ['nickname']
 
     def __str__(self):
         return self.nickname
@@ -83,7 +84,7 @@ class Game(models.Model):
     date = models.DateTimeField( _("date and time"))
     result = models.CharField(_("result"), max_length=1, choices=RESULT_CHOICES, blank=True, null=True)
     is_finished = models.BooleanField(_("finished"), default=False)
-    bonus = models.BooleanField(_("bonus"), default=False)
+    bonus = models.BooleanField(_("bonus"), default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -98,20 +99,33 @@ class Game(models.Model):
 
     def game(self):
         color = "#87ff87" if self.tournament.id % 2 == 0 else "#ffff79"
-        status = _("finished") if self.is_finished else "Progamado"
+        # status = _("finished") if self.is_finished else "Progamado"
         # Formatear la fecha como una cadena
         date_str = format(self.date, "d-m-Y H:i")  # Formato "YYYY-MM-DD HH:mm"
-        return format_html(
-            '<div style="background-color:{}; color: #000; border-radius:8px; padding:2px 4px; display: flex; align-items: center; gap: 4px;">\
-                <span style="color: #000; border-right: 1px solid; padding-right: 2px;">{}</span>\
-                <span style="font-weight:bold; text-shadow: 1px 1px #a2a2a2;">{} </span>\
-                <span style="font-weight:bold; padding-left: 2px; text-shadow: 1px 1px #a2a2a2; border-left: 1px solid">{}</span>\
-            </div>',
-            color,
-            self.tournament.name,
-            status.upper(),
-            date_str,
-        )
+
+        if self.is_finished:
+            return format_html(
+                '<div style="background-color:{}; color: #000; border-radius:8px; padding:2px 4px; display: flex; align-items: center; gap: 4px;">\
+                    <span style="color: #000; border-right: 1px solid; padding-right: 2px;">{}</span>\
+                    <span style="font-weight:bold; text-shadow: 1px 1px #a2a2a2;">FINALIZADO</span>\
+                    <span style="font-weight:bold; padding-left: 2px; text-shadow: 1px 1px #a2a2a2; border-left: 1px solid">{}</span>\
+                </div>',
+                color,
+                self.tournament.name,
+                date_str,
+            )
+        else:
+            return format_html(
+                '<div style="border: 1px solid {}; border-radius:8px; padding:2px 4px; display: flex; align-items: center; gap: 4px;">\
+                    <span style="border-right: 1px solid; padding-right: 2px;">{}</span>\
+                    <span style="font-weight:bold; text-shadow: 1px 1px #a2a2a240;">PROGRAMADO</span>\
+                    <span style="font-weight:bold; padding-left: 2px; text-shadow: 1px 1px #a2a2a240; border-left: 1px solid">{}</span>\
+                </div>',
+                color,
+                self.tournament.name,
+                date_str,
+            )
+    
     game.short_description = _("game")
 
     def __str__(self):

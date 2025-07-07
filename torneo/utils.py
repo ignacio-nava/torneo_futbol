@@ -2,7 +2,7 @@ from django.db.models import Sum, Count, Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
-from .models import Tournament, PlayerPoints, Player
+from .models import Tournament, PlayerPoints, Player, Game
 
 
 def get_tournament_obj(tournament):
@@ -54,10 +54,22 @@ def get_player_points(data, tournament):
         games_lost=Count('result', filter=Q(result='L')),
         games_tied=Count('result', filter=Q(result='T')),
         games_with_bonus=Count('bonus', filter=Q(bonus=True))
-    ).order_by("-total_points")
+    ).order_by("-total_points", "-games_with_bonus")
+
+    last_games = Game.objects.filter(tournament=tournament).order_by("-date")[:4]
         
     for entry in player_points:
         player = Player.objects.get(id=entry["player"])
+
+        last_matches = []
+        for game in last_games:
+            if game.result:
+                try:
+                    pp = PlayerPoints.objects.get(player=player, game=game)
+                    last_matches.append(pp.result if pp.result else "_")
+                except PlayerPoints.DoesNotExist:
+                    last_matches.append("_")
+
         data["selected"]["table"].append({
             "player": {
                 "id": player.id,
@@ -71,6 +83,7 @@ def get_player_points(data, tournament):
             "games_lost": entry["games_lost"],
             "games_tied": entry["games_tied"],
             "games_with_bonus": entry["games_with_bonus"],
+            "last_matches": [last_matches]
         })
     return data
 
