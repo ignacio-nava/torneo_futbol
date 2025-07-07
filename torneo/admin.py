@@ -4,6 +4,8 @@ from django.utils.translation import gettext_lazy as _
 
 from .models import Tournament, Player, Team, Game
 
+admin.site.site_header = "Administración de los Torneos"
+
 class TeamInline(admin.TabularInline):
     model = Team
     extra = 0  # Para "Local" y "Visitor"
