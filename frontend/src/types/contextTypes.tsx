@@ -35,6 +35,7 @@ export interface TableRow {
   games_lost: number;
   games_tied: number;
   games_with_bonus: number;
+  last_matches: Array<"L" | "W" | "T" | "_">;
 }
 
 export interface Selected {

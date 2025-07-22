@@ -83,7 +83,7 @@ def get_player_points(data, tournament):
             "games_lost": entry["games_lost"],
             "games_tied": entry["games_tied"],
             "games_with_bonus": entry["games_with_bonus"],
-            "last_matches": [last_matches]
+            "last_matches": last_matches
         })
     return data
 
