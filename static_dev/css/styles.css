@@ -7,6 +7,9 @@
 
   --color-white: #ffffff;
   --color-green: #6faa54;
+  --color-red: #ff4848;
+  --color-yelow: #ffc61a;
+  --color-grey: #7d7d7d;
   --color-light-green: #60756c;
   --color-dark-green: #0a2b1d;
   --color-bg-green: #114126;
@@ -47,6 +50,9 @@ body {
 }
 .fw-400 {
   font-weight: 400;
+}
+.fw-700 {
+  font-weight: 700;
 }
 .fw-800 {
   font-weight: 800;
@@ -186,6 +192,7 @@ nav > div {
   flex-direction: column;
   align-items: flex-start;
   padding-bottom: 2rem;
+  overflow-x: hidden;
 }
 
 .title-row {
@@ -361,10 +368,11 @@ nav > div {
   border: 1px solid var(--color-light-green);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: hidden;
+  overflow-x: auto;
   border-radius: 8px;
 }
-.row-head {
+.row-head > div{
   border-bottom: 1px solid var(--color-light-green);
 }
 .table__row > div {
@@ -377,22 +385,32 @@ nav > div {
 }
 .table__row > div {
   text-align: center;
+  background-color: inherit;
+}
+.table__row > div {
+  min-width: 28px;
+}
+@media (min-width: 50em) {
+  .table__row > div {
+    min-width: 56px;
+  }
 }
 .table__row > div:nth-child(2) {
   flex: 1;
   border-left: 1px solid var(--color-light-green);
   border-right: 1px solid var(--color-light-green);
-}
-.table__row > div:not(:nth-child(2)) {
-  min-width: 26px;
-}
-@media (min-width: 50em) {
-  .table__row > div:not(:nth-child(2)) {
-    min-width: 52px;
-  }
+  min-width: 128px;
 }
 .table__row > div:nth-child(3) {
   border-right: 1px solid var(--color-light-green);
+}
+.table__row > div:nth-child(9) { /* col de "Últimas"*/
+  min-width: 80px;
+}
+@media (min-width: 50em) {
+  .table__row > div:nth-child(9) {
+    min-width: 104px;
+  }
 }
 .table__row {
   display: flex;
@@ -402,6 +420,32 @@ nav > div {
 }
 .row-player:nth-child(odd) {
   background-color: var(--color-bg-row-odd);
+}
+.last-matches-list {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+}
+.last-matches-list > li {
+  width: 16px;
+  height: 16px;
+  padding-top: 2px;
+  border-radius: 2px;
+  font-size: 11px;
+  color: var(--color-dark-green);
+}
+.last-matches-list > li[data-status="win"] {
+  background-color: var(--color-green);
+}
+.last-matches-list > li[data-status="tie"] {
+  background-color: var(--color-yelow);
+}
+.last-matches-list > li[data-status="lose"] {
+  background-color: var(--color-red);
+}
+.last-matches-list > li[data-status="not-played"] {
+  background-color: var(--color-grey);
 }
 
 

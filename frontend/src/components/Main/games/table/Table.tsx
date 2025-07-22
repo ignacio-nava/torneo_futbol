@@ -18,21 +18,41 @@ const Cols: [label: string, key: "" | TableRowKeys][] = [
     ["P", "games_lost"],
     ["E", "games_tied"],
     ["B", "games_with_bonus"],
+    ["Últimas", "last_matches"],
 ];
+
+const resultsAvilables  = {
+    "W": () => ["win", "V"],
+    "T": () => ["tie", "E"],
+    "L": () => ["lose", "P"],
+    "_": () => ["not-played", "-"]
+}
 
 const RowTable: React.FC<PropsRow> = ({ header, playerData, position }) => {
     let classNameRow = "table__row fc-normal fs-050 fw-400 ";
     classNameRow += header ? "row-head" : "row-player"
-
     const colsData = Cols.map((col, index) => {
         const key = col[1];
-        let data: string;
+        let data: React.ReactNode; // string;
 
         if (playerData) {
             if (key === "") {
                 data = String(position)
             } else if (key === "player") {
                 data = playerData[key]?.nickname || "N/A"
+            } else if (key === "last_matches") {
+                data = (
+                    <ul className="last-matches-list">
+                        {playerData.last_matches.map((match, i) => {
+                            const [resultStatus, status] = resultsAvilables[match]()
+                            return (
+                                <li key={i} data-status={resultStatus}>
+                                    <div className="fw-700">{status}</div>
+                                </li>
+                            )
+                        })}
+                    </ul>
+                )
             } else {
                 data = String(playerData[key])
             }
@@ -41,7 +61,6 @@ const RowTable: React.FC<PropsRow> = ({ header, playerData, position }) => {
             data = col[0]
         }
         
-
         return (
             <div key={index}>
                 <span 
@@ -53,7 +72,6 @@ const RowTable: React.FC<PropsRow> = ({ header, playerData, position }) => {
         )
     })
    
-
     return (
         <div className={classNameRow}>
             {colsData}
@@ -68,7 +86,7 @@ const Table: React.FC = () => {
     const playerDataRows = table.map((row, index) => (
         <RowTable key={index} header={false} playerData={row} position={index+1}/>
     ))
-
+    
     return (
         <div className="table">
             <RowTable header={true} playerData={null} position={null}/>
