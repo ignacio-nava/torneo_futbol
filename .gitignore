@@ -22,6 +22,7 @@ portada/
 staticfiles/
 static/
 node_modules/
+backups/
 
 #Django migrations
 # */migrations/*
