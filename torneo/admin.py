@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.forms import BaseInlineFormSet, ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from .models import Tournament, Player, Team, Game
+from .models import Tournament, Player, Team, Game, Penalty, PlayerPenalty
+from .forms import PlayerPenaltyForm
 
 admin.site.site_header = "Administración de los Torneos"
 
@@ -70,3 +71,13 @@ class TournamentAdmin(admin.ModelAdmin):
 class PlayerAdmin(admin.ModelAdmin):
     list_display = ["nickname", "first_name", "last_name", "created_at", "updated_at"]
     search_fields = ["nickname", "first_name", "last_name"]
+
+admin.site.register(Penalty)
+
+@admin.register(PlayerPenalty)
+class PlayerPenaltyAdmin(admin.ModelAdmin):
+    form = PlayerPenaltyForm
+    filter_horizontal = ("players",)
+    list_display = ("penalty_and_game_date", "players_count", "created_at")
+    ordering = ["game__date"]
+    list_filter = ("penalty", "game")

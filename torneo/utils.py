@@ -2,7 +2,7 @@ from django.db.models import Sum, Count, Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
-from .models import Tournament, PlayerPoints, Player, Game
+from .models import Tournament, PlayerPoints, Player, Game, PlayerPenalty
 
 
 def get_tournament_obj(tournament):
@@ -13,6 +13,25 @@ def get_tournament_obj(tournament):
         "end_date": tournament.end_date,
         "finished": tournament.finished
     }
+
+def get_players(game, role):
+    penalties_in_game = game.player_penalties.all()
+    players = []
+    for team in game.teams.filter(role=role):
+        for player in team.players.all():
+            players.append({
+                "nickname": player.nickname,
+                "penalties": search_penalty(penalties_in_game, player)
+            })
+    return players
+
+def search_penalty(penalties_in_game, player):
+    penalties = []
+    for penalty in penalties_in_game:
+        if penalty.players.filter(id=player.id).exists():
+            penalties.append(penalty.penalty.code)
+    return penalties
+
 
 def get_games(data, tournament):
     for game in tournament.games.all():
@@ -25,20 +44,12 @@ def get_games(data, tournament):
                 {
                     "name": _("light team"),
                     "role": "L",
-                    "players": [
-                        player.nickname
-                        for team in game.teams.filter(role="L")
-                        for player in team.players.all()
-                    ]
+                    "players": get_players(game, role="L")
                 }, 
                 {
                     "name": _("dark team"),
                     "role": "D",
-                    "players": [
-                        player.nickname
-                        for team in game.teams.filter(role="D")
-                        for player in team.players.all()
-                    ]
+                    "players": get_players(game, role="D")
                 }
             ]
         }
@@ -47,17 +58,25 @@ def get_games(data, tournament):
     return data
 
 def get_player_points(data, tournament):
-    player_points = PlayerPoints.objects.filter(tournament=tournament).values('player').annotate(
-        total_points=Sum('points', distinct=False),
-        games_played=Count('player', filter=Q(result__in=['W', 'L', 'T'])),
-        games_won=Count('result', filter=Q(result='W')),
-        games_lost=Count('result', filter=Q(result='L')),
-        games_tied=Count('result', filter=Q(result='T')),
-        games_with_bonus=Count('bonus', filter=Q(bonus=True))
-    ).order_by("-total_points", "-games_with_bonus")
+    # -------------------------------- #
+    #        Sección jugadores         #
+    # -------------------------------- #
+    player_points = (
+        PlayerPoints.objects
+        .filter(tournament=tournament)
+        .values('player').annotate(
+            total_points=Sum('points', distinct=False),
+            games_played=Count('player', filter=Q(result__in=['W', 'L', 'T'])),
+            games_won=Count('result', filter=Q(result='W')),
+            games_lost=Count('result', filter=Q(result='L')),
+            games_tied=Count('result', filter=Q(result='T')),
+            games_with_bonus=Count('bonus', filter=Q(bonus=True))
+        ).order_by("-total_points", "-games_with_bonus")
+    )
 
     last_games = Game.objects.filter(tournament=tournament).order_by("-date")[:4]
         
+    players_list = []
     for entry in player_points:
         player = Player.objects.get(id=entry["player"])
 
@@ -70,7 +89,7 @@ def get_player_points(data, tournament):
                 except PlayerPoints.DoesNotExist:
                     last_matches.append("_")
 
-        data["selected"]["table"].append({
+        players_list.append({
             "player": {
                 "id": player.id,
                 "first_name": player.first_name,
@@ -85,6 +104,40 @@ def get_player_points(data, tournament):
             "games_with_bonus": entry["games_with_bonus"],
             "last_matches": last_matches
         })
+
+    # -------------------------------- #
+    #        Sección penalidades       #
+    # -------------------------------- #
+    penalties_qs = (
+        PlayerPenalty.objects
+        .filter(game__tournament=tournament)
+        .values("players__id", "players__nickname", "penalty__name")
+        .annotate(total_points=Sum("penalty__points"))
+    )
+
+    penalties_by_player = {}
+    for entry in penalties_qs:
+        player_nickname = entry["players__nickname"]
+        if player_nickname not in penalties_by_player:
+            penalties_by_player[player_nickname] = {
+                "playerNickname": player_nickname,
+                "playerPenalties": []
+            }
+
+        penalties_by_player[player_nickname]["playerPenalties"].append({
+            "penaltyName": entry["penalty__name"],
+            "penaltyPoints": entry["total_points"],
+        })
+
+    # -------------------------------- #
+    #     Guardar en el dict final     #
+    # -------------------------------- #
+    data["selected"]["table"] = {
+        "players": players_list,
+        "penalties": list(penalties_by_player.values())
+    }
+
+
     return data
 
 def get_data_serialized(tournamet_id=None):

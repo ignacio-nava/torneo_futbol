@@ -6,10 +6,13 @@ interface PropsMain {
     status: "active" | "";
 }
 
-interface PropsItem { nickname: string | null; index: number; }
+interface PropsItem { nickname: string | null; penalties: string[]; index: number; }
 
-const PlayerRow: React.FC<PropsItem> = ({ nickname, index }) => {
-    const playerInfo = `(${index}) ${nickname}`
+const PlayerRow: React.FC<PropsItem> = ({ nickname, penalties, index }) => {
+    let playerInfo = `(${index}) ${nickname}`
+    if (penalties.length > 0) {
+        playerInfo += ` (${penalties.join(", ")})`
+    }
     return (
         <li className="fs-050 fc-normal fw-300">{playerInfo}</li>
     )
@@ -21,11 +24,11 @@ export const GameInfoPlayers: React.FC<PropsMain> = ({ teams, status }) => {
 
     const lightTeam: Team = teams[0]
     const lightTeamElements = lightTeam.players.map((player, index) => (
-        <PlayerRow key={index} nickname={player} index={index+1}/>
+        <PlayerRow key={index} nickname={player.nickname} penalties={player.penalties} index={index+1}/>
     ))
     const darkTeam: Team = teams[1]
     const darkTeamElements = darkTeam.players.map((player, index) => (
-        <PlayerRow key={index} nickname={player} index={index+1}/>
+        <PlayerRow key={index} nickname={player.nickname} penalties={player.penalties} index={index+1}/>
     ))
 
     useEffect(() => {
