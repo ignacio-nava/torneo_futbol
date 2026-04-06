@@ -13,10 +13,15 @@ export interface Player {
   nickname: string | null;
 }
 
+export interface TeamPlayer {
+  nickname: string | null;
+  penalties: string[];
+}
+
 export interface Team {
   name: string;
   role: "L" | "D";
-  players: string[];
+  players: TeamPlayer[];
 }
 
 export interface Game {
@@ -27,7 +32,7 @@ export interface Game {
   teams: Team[];
 }
 
-export interface TableRow {
+export interface TablePlayerRow {
   player: Player;
   total_points: number;
   games_played: number;
@@ -37,11 +42,14 @@ export interface TableRow {
   games_with_bonus: number;
   last_matches: Array<"L" | "W" | "T" | "_">;
 }
+export interface TableRow {
+  players: TablePlayerRow[]
+}
 
 export interface Selected {
   tournament: Tournament;
   games: Game[];
-  table: TableRow[]
+  table: TableRow
 }
 
 
