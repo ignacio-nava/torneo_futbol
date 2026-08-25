@@ -25,8 +25,10 @@ export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children
       },
       games: [],
       table: {
-        players: []
-      }
+        players: [],
+        events_by_player: []
+      },
+      events: []
     }
   });
 

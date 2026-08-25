@@ -1,37 +1,37 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import PlayerPenalty
+from .models import PlayerEvent
 
 UNION = ", "
 
-class PlayerPenaltyForm(forms.ModelForm):
+class PlayerEventForm(forms.ModelForm):
     class Meta:
-        model = PlayerPenalty
+        model = PlayerEvent
         fields = "__all__"
 
     def clean(self):
         cleaned = super().clean()
-        penalty = cleaned.get("penalty")
+        event = cleaned.get("event")
         players = cleaned.get("players")
         game = cleaned.get("game")
-
+        
         # Evitar que se aplique más una misma penalización al juego
         if not self.instance.pk: # Se está creando una nueva
-            for old_penalty in game.player_penalties.all():
-                if old_penalty.penalty == penalty:
+            for old_event in game.player_events.all():
+                if old_event.event == event:
                     raise ValidationError({
-                            "game": "Ya existe una penalización de este estila para este partido"
+                            "game": "Ya existe un evento de este estilo para este partido"
                         })
         else: # Se está editando una existente
-            if self.instance.penalty != penalty:
+            if self.instance.event != event:
                 raise ValidationError({
-                        "game": "Ya existe una penalización de este estila para este partido"
+                        "game": "Ya existe un evento de este estilo para este partido"
                     })
-                
+
         # Evitar que se penalice jugadores que no corresponda al partido
         if players and players.exists():
-            if penalty.in_game:
+            if event.in_game:
                 invalid = players.exclude(teams__game=game)
                 if invalid.exists():
                     names = normalice_conjunction(UNION.join([player.nickname for player in invalid]))

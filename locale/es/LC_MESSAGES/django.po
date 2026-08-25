@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-18 18:53-0300\n"
+"POT-Creation-Date: 2026-05-15 19:51-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -142,28 +142,40 @@ msgid "in game"
 msgstr "en partido"
 
 #: torneo/models.py:149
-msgid "penalty"
-msgstr "penalidad"
+msgid "event"
+msgstr "evento"
 
 #: torneo/models.py:150
-msgid "penalties"
-msgstr "penalidades"
+msgid "events"
+msgstr "eventos5"
 
 #: torneo/models.py:164
-msgid "player penalty"
-msgstr "penalidad a jugador"
+msgid "event assignment"
+msgstr "asignación de evento"
 
 #: torneo/models.py:165
-msgid "player penalties"
-msgstr "penalidades a jugadores"
+msgid "event assignments"
+msgstr "asignación de eventos"
 
-#: torneo/utils.py:45
+#: torneo/utils.py:38
 msgid "light team"
 msgstr "Equipo Claro"
 
-#: torneo/utils.py:50
+#: torneo/utils.py:43
 msgid "dark team"
 msgstr "Equipo Escuro"
+
+#~ msgid "penalty"
+#~ msgstr "penalidad"
+
+#~ msgid "penalties"
+#~ msgstr "penalidades"
+
+#~ msgid "player penalty"
+#~ msgstr "penalidad a jugador"
+
+#~ msgid "player penalties"
+#~ msgstr "penalidades a jugadores"
 
 #, fuzzy
 #~| msgid "light team"

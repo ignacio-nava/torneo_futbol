@@ -351,6 +351,20 @@ nav > div {
   list-style: none;
 }
 
+.game__info-events {
+  max-height: var(--max-height-events, 0);
+  overflow: hidden;
+  background-color: var(--color-bg-green);
+}
+.game__info-events li {
+  margin-left: 0.5rem;
+}
+.game__info[data-status="active"] .game__info-events {
+  padding: 0.25rem 0.5rem;
+  border-top: 1px solid var(--color-light-green);
+}
+
+
 .data-row__table {
   display: none;
   padding: 1rem;
@@ -446,6 +460,14 @@ nav > div {
 }
 .last-matches-list > li[data-status="not-played"] {
   background-color: var(--color-grey);
+}
+.events-table {
+  list-style: none;
+}
+.event-table-row {
+  padding: .25rem .5rem;
+  border-top: 1px solid var(--color-light-green);
+  background-color: var(--color-dark-green);
 }
 
 

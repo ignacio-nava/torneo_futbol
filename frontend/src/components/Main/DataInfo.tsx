@@ -6,16 +6,20 @@ import Table from "./games/table/Table";
 const DataInfo: React.FC = () => {
     const [activeType, setActiveType] = useState<'games' | 'table'>('games');
     const { selected, isLoadingData } = useAppContext()
-    const { tournament, games } = selected
+    const { tournament, games, events } = selected
 
     const handleClick = useCallback((type: 'games' | 'table') => {
         setActiveType(type);
       }, []);
 
-    const gameElements = games.map((game, index) => (
-        <GameRow key={index} game={game}/>
-    ))
-    
+    const gameElements = games.map((game, index) => {
+        const gameEvents = events.filter(event => event.game__id === game.id)
+        return <GameRow key={index} game={game} gameEvents={gameEvents}/>
+    })
+    // const gameElements = games.map((game, index) => (
+    //     <GameRow key={index} game={game} event={event}/>
+    // ))
+
     return (
         <div className="data-info">
             <div className="title-row">

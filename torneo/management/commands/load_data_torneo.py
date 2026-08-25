@@ -2,10 +2,10 @@ import csv
 from collections import defaultdict
 from pathlib import Path
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from torneo.models import Tournament, Player, Team, Game
+from torneo.models import Tournament, Player, Team, Game, Event, PlayerEvent
 
 
 class Command(BaseCommand):
@@ -48,6 +48,8 @@ class Command(BaseCommand):
 
             # Se limpian las tablas antes de importar.
             # Orden importante para evitar problemas de FK.
+            PlayerEvent.objects.all().delete()
+            Event.objects.all().delete()
             Game.objects.all().delete()
             Team.objects.all().delete()
             Player.objects.all().delete()
@@ -67,12 +69,21 @@ class Command(BaseCommand):
                 "team_players": {"filepath": backup_dir / "team_players.csv"}
             }
 
+            event_dict = {
+                "player_events": {"filepath": backup_dir / "player_events.csv"},
+                "player_event_players": {"filepath": backup_dir / "player_event_players.csv"}
+            }
+
             # Import simple (sin FK complejas)
             self.import_model(Tournament, backup_dir / "tournaments.csv")
             self.import_model(Player, backup_dir / "players.csv")
+            self.import_model(Event, backup_dir / "events.csv", required=False)
 
             # Import complejo que reconstruye Game → Team → Players
             self.import_game(game_dict)
+
+            # Import complejo que reconstruye PlayerEvent → Players
+            self.import_player_events(event_dict)
 
         self.stdout.write(self.style.SUCCESS("Backup import completed"))
 
@@ -81,10 +92,31 @@ class Command(BaseCommand):
         Verifica que el archivo exista.
         """
         if not filepath.exists():
-            self.stdout.write(self.style.ERROR(f"Missing file: {filepath}"))
-            return 
+            raise CommandError(f"Missing file: {filepath}")
 
-    def import_model(self, model, filepath):
+    def read_csv(self, filepath):
+        """
+        Lee un CSV validando primero que exista.
+        """
+        self.file_exists(filepath)
+
+        with open(filepath, newline="") as f:
+            return list(csv.DictReader(f))
+
+    def read_optional_csv(self, filepath):
+        """
+        Lee un CSV opcional.
+
+        Se usa para mantener compatibilidad con backups viejos que
+        todavía no tenían archivos relacionados a eventos.
+        """
+        if not filepath.exists():
+            self.stdout.write(self.style.WARNING(f"Optional file not found, skipping: {filepath}"))
+            return []
+
+        return self.read_csv(filepath)
+
+    def import_model(self, model, filepath, required=True):
         '''
         Import simple para modelos que no tienen relaciones
         complejas o que se pueden resolver directamente con ids.
@@ -94,15 +126,16 @@ class Command(BaseCommand):
         Player
         '''
 
-        self.file_exists(filepath)
+        if required:
+            self.file_exists(filepath)
+        elif not filepath.exists():
+            self.stdout.write(self.style.WARNING(f"Optional file not found, skipping: {filepath}"))
+            return
 
-        with open(filepath, newline="") as f:
-            reader = csv.DictReader(f)
-
-            # Cada fila del CSV se convierte en un dict
-            # que coincide con los campos del modelo.
-            for row in reader:
-                model.objects.create(**row)
+        # Cada fila del CSV se convierte en un dict
+        # que coincide con los campos del modelo.
+        for row in self.read_csv(filepath):
+            model.objects.create(**row)
 
     def import_game(self, data):
         """
@@ -119,7 +152,7 @@ class Command(BaseCommand):
 
         # Cargar todos los CSV en memoria
         data_items = {
-            key: list(csv.DictReader(open(data[key]["filepath"])))
+            key: self.read_csv(data[key]["filepath"])
             for key in data.keys()
         }
         
@@ -196,3 +229,39 @@ class Command(BaseCommand):
             game.result = game_row["result"]
             game.is_finished = game_row["is_finished"] == "True"
             game.save()
+
+    def import_player_events(self, data):
+        """
+        Reconstrucción completa de los eventos asignados:
+
+        PlayerEvent
+          ├─ Event
+          ├─ Game
+          └─ Players (ManyToMany)
+        """
+
+        data_items = {
+            key: self.read_optional_csv(data[key]["filepath"])
+            for key in data.keys()
+        }
+
+        players_by_player_event = defaultdict(list)
+        for player_event_player in data_items["player_event_players"]:
+            players_by_player_event[player_event_player["player_event_id"]].append(
+                player_event_player["player_id"]
+            )
+
+        for player_event_row in data_items["player_events"]:
+            event = Event.objects.get(id=player_event_row["event_id"])
+            game = Game.objects.get(id=player_event_row["game_id"])
+
+            player_event = PlayerEvent.objects.create(
+                id=player_event_row["id"],
+                event=event,
+                game=game,
+                created_at=player_event_row["created_at"],
+            )
+
+            for player_id in players_by_player_event[player_event_row["id"]]:
+                player = Player.objects.get(id=player_id)
+                player_event.players.add(player)
