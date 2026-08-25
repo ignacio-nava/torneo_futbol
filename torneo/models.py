@@ -136,41 +136,41 @@ class Game(models.Model):
         return f"{date} | {status} | {result}"
 
 
-class Penalty(models.Model):
+class Event(models.Model):
     name = models.CharField(_("name"), max_length=100)
     code = models.CharField(_("code"), max_length=10, unique=True, null=True)
     description = models.TextField(_("description"), blank=True, null=True)
-    points = models.PositiveIntegerField(default=1)
+    points = models.IntegerField(default=0)
     in_game = models.BooleanField(_("in game"),default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = _("penalty")
-        verbose_name_plural = _("penalties")
+        verbose_name = _("event")
+        verbose_name_plural = _("events")
 
     def __str__(self):
         return self.name
     
 
-class PlayerPenalty(models.Model):
-    players = models.ManyToManyField("Player", related_name="penalties")
-    penalty = models.ForeignKey("Penalty", on_delete=models.CASCADE, related_name="player_penalties")
-    game = models.ForeignKey("Game", on_delete=models.CASCADE, related_name="player_penalties")#, blank=True, null=True)
+class PlayerEvent(models.Model):
+    players = models.ManyToManyField("Player", related_name="events")
+    event = models.ForeignKey("Event", on_delete=models.CASCADE, related_name="player_events")
+    game = models.ForeignKey("Game", on_delete=models.CASCADE, related_name="player_events")#, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
     class Meta:
-        verbose_name = _("player penalty")
-        verbose_name_plural = _("player penalties")
+        verbose_name = _("event assignment")
+        verbose_name_plural = _("event assignments")
 
-    def penalty_and_game_date(self):
-        date = self.game.date.strftime('%Y-%m-%d %H:%M')
-        return f"{self.penalty.name} | {date}"
+    def event_and_game_date(self):
+        date = self.game.date.strftime('%Y-%m-%d')
+        return f"{self.event.name} | {date}"
     
     def players_count(self):
         return self.players.count()
     
     def __str__(self):
         date = self.game.date.strftime('%Y-%m-%d %H:%M')
-        return f"GameDate: {date} | Penalty: {self.penalty.name} | Players: {self.players.count()}"
+        return f"GameDate: {date} | Event: {self.event.name} | Players: {self.players.count()}"

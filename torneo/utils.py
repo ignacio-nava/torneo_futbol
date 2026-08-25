@@ -2,7 +2,7 @@ from django.db.models import Sum, Count, Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
-from .models import Tournament, PlayerPoints, Player, Game, PlayerPenalty
+from .models import Tournament, PlayerPoints, Player, Game, PlayerEvent
 
 
 def get_tournament_obj(tournament):
@@ -15,27 +15,20 @@ def get_tournament_obj(tournament):
     }
 
 def get_players(game, role):
-    penalties_in_game = game.player_penalties.all()
+    # penalties_in_game = game.player_penalties.all()
     players = []
     for team in game.teams.filter(role=role):
         for player in team.players.all():
             players.append({
-                "nickname": player.nickname,
-                "penalties": search_penalty(penalties_in_game, player)
+                "id": player.id,
+                "nickname": player.nickname
             })
     return players
-
-def search_penalty(penalties_in_game, player):
-    penalties = []
-    for penalty in penalties_in_game:
-        if penalty.players.filter(id=player.id).exists():
-            penalties.append(penalty.penalty.code)
-    return penalties
-
 
 def get_games(data, tournament):
     for game in tournament.games.all():
         obj_games = {
+            "id": game.id,
             "datetime": game.date,
             "result": game.result,
             "is_finished": game.is_finished,
@@ -58,9 +51,7 @@ def get_games(data, tournament):
     return data
 
 def get_player_points(data, tournament):
-    # -------------------------------- #
-    #        Sección jugadores         #
-    # -------------------------------- #
+    # [1] Se obtienen la tabla sin ordenar aún
     player_points = (
         PlayerPoints.objects
         .filter(tournament=tournament)
@@ -71,17 +62,44 @@ def get_player_points(data, tournament):
             games_lost=Count('result', filter=Q(result='L')),
             games_tied=Count('result', filter=Q(result='T')),
             games_with_bonus=Count('bonus', filter=Q(bonus=True))
-        ).order_by("-total_points", "-games_with_bonus")
+        )
+    )
+    # [2] Se obtienen los eventos del torneo y se mapean
+    event_points = (
+        PlayerEvent.objects
+        .filter(game__tournament=tournament)
+        .values(
+            "players", 
+            "event__id", 
+            "event__code", 
+            "event__name", 
+            "players__nickname"
+        )
+        .annotate(
+            total_event_points=Sum("event__points"),
+            event_count=Count("event__id")
+        )
+        .order_by("players__nickname")
     )
 
+    event_points_map = {}
+    for entry in event_points:
+        player_id = entry["players"]
+        old_points = event_points_map.get(player_id, 0)
+        event_points_map[entry["players"]] = old_points + entry.get("total_event_points", 0)
+
+    # [3] Se obtienen los ultimos 4 partidos
     last_games = Game.objects.filter(tournament=tournament).order_by("-date")[:4]
-        
+
     players_list = []
     for entry in player_points:
         player = Player.objects.get(id=entry["player"])
+        
+        extra_points = event_points_map.get(player.id, 0) # De los eventos posibles
+        entry["total_points"] = entry["total_points"] + extra_points # Se suman a los puntos totales
 
         last_matches = []
-        for game in last_games:
+        for game in reversed(last_games):
             if game.result:
                 try:
                     pp = PlayerPoints.objects.get(player=player, game=game)
@@ -102,31 +120,37 @@ def get_player_points(data, tournament):
             "games_lost": entry["games_lost"],
             "games_tied": entry["games_tied"],
             "games_with_bonus": entry["games_with_bonus"],
+            "has_extra_points": bool(extra_points),
             "last_matches": last_matches
         })
 
-    # -------------------------------- #
-    #        Sección penalidades       #
-    # -------------------------------- #
-    penalties_qs = (
-        PlayerPenalty.objects
-        .filter(game__tournament=tournament)
-        .values("players__id", "players__nickname", "penalty__name")
-        .annotate(total_points=Sum("penalty__points"))
-    )
+        players_list.sort(
+            key=lambda p: (
+                p["total_points"],
+                p["games_with_bonus"]
+            ),
+            reverse=True
+        )
 
-    penalties_by_player = {}
-    for entry in penalties_qs:
-        player_nickname = entry["players__nickname"]
-        if player_nickname not in penalties_by_player:
-            penalties_by_player[player_nickname] = {
-                "playerNickname": player_nickname,
-                "playerPenalties": []
+    # Se agrupan los eventos del torneo por jugadores
+    events_by_player = {}
+    for entry in event_points:
+        player_id = entry["players"]
+
+        if player_id not in events_by_player:
+            events_by_player[player_id] = {
+                "player_id": player_id,
+                "player_nickname": entry["players__nickname"],
+                "points_to_table": event_points_map.get(player_id, 0),
+                "events": []
             }
 
-        penalties_by_player[player_nickname]["playerPenalties"].append({
-            "penaltyName": entry["penalty__name"],
-            "penaltyPoints": entry["total_points"],
+        events_by_player[player_id]["events"].append({
+            "event_id": entry["event__id"],
+            "event_name": entry["event__name"],
+            "event_code": entry["event__code"],
+            "event_count": entry["event_count"],
+            "total_event_points": entry["total_event_points"],
         })
 
     # -------------------------------- #
@@ -134,11 +158,28 @@ def get_player_points(data, tournament):
     # -------------------------------- #
     data["selected"]["table"] = {
         "players": players_list,
-        "penalties": list(penalties_by_player.values())
+        "events_by_player": list(events_by_player.values())
     }
 
-
     return data
+
+def get_events(data, tournament):
+    events = (
+        PlayerEvent.objects
+        .filter(game__tournament=tournament)
+        .values(
+            "game__id",
+            "players__id",
+            "players__nickname",
+            "event__id",
+            "event__name",
+            "event__code",
+            "event__points",
+            "event__in_game",
+        )
+    )
+    data["selected"]["events"] = list(events)
+    return
 
 def get_data_serialized(tournamet_id=None):
     data = {}
@@ -153,8 +194,11 @@ def get_data_serialized(tournamet_id=None):
     data["selected"] = {
         "tournament": get_tournament_obj(tournament),
         "games": [],
-        "table": []
+        "table": [],
+        "events": []
     } 
     data = get_games(data, tournament)
     data = get_player_points(data, tournament)
+    get_events(data, tournament)
+
     return data

@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
-import { Game } from "../../../types/contextTypes"
+import { useEffect, useState, useRef } from "react";
+import { Game, Event } from "../../../types/contextTypes"
 import { GameInfoPlayers } from "./GameInfoPlayers";
 import { GameInfoResult } from "./GameInfoResult";
 
 export interface GameRowProps {
     game: Game;
+    gameEvents: Event[];
 }
+
 
 const formatDate = (datetime: string): string => {
     const date: Date = new Date(datetime)
@@ -22,17 +24,55 @@ const formatDate = (datetime: string): string => {
     return `${day} ${hour}`
 } 
 
-export const GameRow: React.FC<GameRowProps> = ({ game }) => {
+export const GameRow: React.FC<GameRowProps> = ({ game, gameEvents }) => {
     const [gameStatus, setGameStatus] = useState<"active" | "" >("")
+
+    const [maxHeight, setMaxHeight] = useState<number>(0);
+    const divRef = useRef<HTMLDivElement>(null);
 
     function handleClickCheron() {
         setGameStatus(prevStatus => prevStatus === "" ? "active" : "")
     }
+ 
+    const eventsOutGame: Event[] = gameEvents.filter(event => !event.event__in_game)
 
     useEffect(() => {
         setGameStatus("");
     }, [game]);
+
+    useEffect(() => {
+        if (!divRef.current) return;
+        setMaxHeight(divRef.current.scrollHeight);
+    }, [gameStatus, gameEvents]);
+
+    const objEventDivStyle = {
+        "--max-height-events":
+            (gameStatus === ""
+                ? 0
+                : maxHeight) + "px"
+    } as React.CSSProperties;
     
+    let eventsOutGameRow: React.ReactNode = null;
+
+    if (eventsOutGame.length > 0) {
+        eventsOutGameRow = (
+            <div className="game__info-events fs-050 fc-normal fw-300" ref={divRef} style={objEventDivStyle}>
+                <ul>
+                    {
+                        eventsOutGame.map((event, index) => {
+                            const points = event.event__points;
+                            const formattedPoints = points > 0 ? `+${points}` : `${points}`;
+
+                            return (
+                                <li key={index}>{`${event.players__nickname} [${event.event__name}: ${formattedPoints}]`}</li>
+                            )
+                        })
+                    }
+                </ul>
+            </div>
+        );
+    }
+
     return (
         <div className="game">
             <div className="game__status">
@@ -44,8 +84,14 @@ export const GameRow: React.FC<GameRowProps> = ({ game }) => {
                 </p>
             </div>
             <div className="game__info" data-status={gameStatus}>
-                <GameInfoResult result={game.result} teams={game.teams} handleClick={handleClickCheron}/>
-                <GameInfoPlayers teams={game.teams} status={gameStatus}/>
+                <GameInfoResult
+                    id={game.id} 
+                    result={game.result} 
+                    teams={game.teams}
+                    handleClick={handleClickCheron}
+                />
+                <GameInfoPlayers teams={game.teams} status={gameStatus} gameEvents={gameEvents}/>
+                {eventsOutGameRow}
             </div>
         </div>
     )
