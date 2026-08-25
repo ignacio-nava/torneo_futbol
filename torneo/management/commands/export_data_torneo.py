@@ -5,7 +5,7 @@ from pathlib import Path
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from torneo.models import Tournament, Team, Player, Game
+from torneo.models import Tournament, Team, Player, Game, Event, PlayerEvent
 
 
 class Command(BaseCommand):
@@ -23,13 +23,15 @@ class Command(BaseCommand):
         self.export_queryset(Player.objects.all(), backup_dir / "players.csv")
         self.export_queryset(Team.objects.all(), backup_dir / "teams.csv")
         self.export_queryset(Game.objects.all(), backup_dir / "games.csv")
+        self.export_queryset(Event.objects.all(), backup_dir / "events.csv")
+        self.export_queryset(PlayerEvent.objects.all(), backup_dir / "player_events.csv")
 
         self.export_team_players(backup_dir / "team_players.csv")
+        self.export_player_event_players(backup_dir / "player_event_players.csv")
 
         self.stdout.write(self.style.SUCCESS("Backup completed"))
 
     def export_queryset(self, queryset, filepath):
-
         model = queryset.model
         fields = [field.attname for field in model._meta.fields]
 
@@ -42,11 +44,21 @@ class Command(BaseCommand):
                 writer.writerow(data)
 
     def export_team_players(self, filepath):
-
         with open(filepath, "w", newline="") as f:
             writer = csv.writer(f)
+
             writer.writerow(["team_id", "player_id"])
 
             for team in Team.objects.all():
                 for player in team.players.all():
                     writer.writerow([team.id, player.id])
+
+    def export_player_event_players(self, filepath):
+        with open(filepath, "w", newline="") as f:
+            writer = csv.writer(f)
+        
+            writer.writerow(["player_event_id", "player_id"])
+
+            for player_event in PlayerEvent.objects.all():
+                for player in player_event.players.all():
+                    writer.writerow([player_event.id, player.id])
