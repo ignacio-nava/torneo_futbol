@@ -13,6 +13,8 @@ _pycache/
 #Environment
 venv/
 env/
+*/env.py
+env.py
 .virtualenv/
 
 #Django specific
